@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Manager</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      color: #333;
+      height: 100%;
+    }
+
+    /* Background slideshow */
+    .bg-slideshow {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .bg-slideshow img {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+    }
+    .bg-slideshow img.active {
+      opacity: 1;
+    }
+
+    /* Hero section */
+    header {
+      text-align: center;
+      padding: 80px 20px 40px;
+      color: rgb(66, 74, 187);
+      position: relative;
+      z-index: 1;
+    }
+    header h1 {
+      font-size: 3em;
+      font-weight: 700;
+    }
+    header p {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    /* Ticker */
+    .ticker {
+      background: rgba(182, 152, 152, 0.85);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 12px;
+      font-weight: 600;
+      color: #1e3c72;
+      margin: 0 auto;
+      max-width: 1200px;
+      border-radius: 8px;
+    }
+    .ticker span {
+      display: inline-block;
+      padding-right: 50px;
+      animation: scrollLeft 20s linear infinite;
+    }
+    @keyframes scrollLeft {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Main layout */
+    .main {
+      display: flex;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+      gap: 30px;
+    }
+    .container { flex: 2; }
+    .sidebar { flex: 1; }
+
+    /* Glass cards */
+    .section, .sidebar {
+      background: rgba(117, 115, 145, 0.85);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 35px;
+      box-shadow: 0 6px 18px rgba(81, 31, 76, 0.08);
+    }
+    h2 {
+      color: #ccb962;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #21518c;
+      padding-bottom: 8px;
+    }
+
+    form input, form button, form select {
+      display: block;
+      width: 95%;
+      margin: 14px auto;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    form input, form select {
+      border: 1px solid #706363;
+      background: #fafafa;
+    }
+    form button {
+      background: linear-gradient(90deg, #2a5298, #1e3c72);
+      color: rgb(177, 23, 23);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #16335c;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(44,62,80,0.9);
+      color: #bdc3c7;
+      text-align: center;
+      padding: 20px;
+    }
+    footer strong {
+      font-weight: bold;
+      color: #0d0d0c;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background slideshow -->
+  <div class="bg-slideshow">
+  <img src="{{ url_for('static', filename='image1.jpg') }}" class="active">
+  <img src="{{ url_for('static', filename='image2.jpg') }}">
+  <img src="{{ url_for('static', filename='image3.jpg') }}">
+  <img src="{{ url_for('static', filename='image4.jpg') }}">
+  <img src="{{ url_for('static', filename='image5.jpg') }}">
+</div>
+
+  <!-- Hero -->
+  <header>
+    <h1>🌟 Event Management System 🌟</h1>
+    <p>Professional Tool To efficiently Sort and Organize Events</p>
+  </header>
+
+  <!-- Ticker -->
+  <div class="ticker">
+    <span>
+      {% if upcoming_events %}
+        {% for event in upcoming_events %}
+          {{ event.name }} on {{ event.date }} |
+        {% endfor %}
+      {% else %}
+        No upcoming events
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="container">
+      <div class="section">
+        <h2>✨ Insert Event</h2>
+        <form action="/insert" method="post">
+          <input type="text" name="name" placeholder="Event Name" required>
+          <input type="text" name="loc" placeholder="Location" required>
+          <input type="date" name="date" required>
+          <input type="number" name="seats" placeholder="Seats" required>
+          <label><input type="checkbox" name="upcoming"> Mark as Upcoming</label>
+          <button type="submit">📝 Insert Event</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>🔍Search Event</h2>
+        <form action="/search" method="post">
+          <input type="number" name="id" placeholder="Event ID" required>
+          <button type="submit">🔍 Search Event</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>🌠 Display All Events</h2>
+        <form action="/display" method="get">
+          <button type="submit">📜 Show All Events</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h2>📅 Calendar</h2>
+      <div id="calendar"></div>
+
+      <h2>📝 Used Event Names</h2>
+      <ul>
+        {% for name in used_names %}
+          <li>{{ name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Event Manager Project. All rights reserved.</p>
+    <p><strong>Annewsh Dikshit</strong> (Project Leader)</p>
+    <p>Biprodip Biswas | Pritam Mahato | Subham Murmu | Sudarshan</p>
+  </footer>
+
+  <script>
+    // Background slideshow
+    let slides = document.querySelectorAll('.bg-slideshow img');
+    let current = 0;
+    function showNextSlide() {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }
+    setInterval(showNextSlide, 5000);
+  </script>
+</body>
+</html>
